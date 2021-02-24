@@ -1,5 +1,7 @@
 # hwp-azure-app-service
 Express based website that streams 3D data from an Azure instance
+Live: http://hoops-web-demo.azurewebsites.net/
+Training class: https://youtu.be/7RQ9v9JbYd8?t=3031
 
 ## License String
 To run you must get a HOOPS Web Platform or HOOPS Communicator license string from manage.techsoft3d.com or developer.techsoft3d.com and add it to /bin/www.
