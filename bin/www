@@ -1,0 +1,137 @@
+#!/usr/bin/env node
+/**
+ * Enter your HOOPS license key here from manage.techsoft3d.com or developer.techsoft3d.com
+ */
+const license = '';
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var debug = require('debug')('myapp:server');
+var http = require('http');
+
+const httpProxy = require('http-proxy');
+const proxy = httpProxy.createProxyServer({	ws: true });
+
+const child_process = require("child_process");
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+server.on('upgrade',function(req,res){
+  var dir = process.env.PORT == undefined? '.' : '..'; // execution directory is different if on local host of Azure App Service
+
+  var child = child_process.spawn( dir + '/win64/ts3d_sc_server.exe', 
+    ['--license', license,
+    '--id', '1234', 
+    '--model-search-directories', dir + '/models', 
+    '--sc-port', '11180']
+  );
+
+  child.on("exit", function(code, signal) {
+    console.log(
+      "child process exited with " + `code ${code} and signal ${signal}`
+    );
+  });
+  child.stdout.on('data', (data) => {
+    {
+        const message = data.toString().trim();
+        console.log('child data:' + message);
+    }
+  });
+  child.stderr.on("data", data => {
+    console.error(`child stderr:\n${data}`);
+  });
+
+  // Wait .5 sec to allow the child process to spin up
+  // TODO: query if the child process is alive and ready to serve data
+  setTimeout(() => { 
+
+    let proxy_url = `ws://127.0.0.1:11180`;
+
+    proxy.ws(req, res, {target: proxy_url}, function(e){
+      console.log(`Proxying Session Error: ${e}`, e);
+    });
+  }, 500);
+  
+});
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}

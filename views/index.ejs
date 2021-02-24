@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/techsoft3d/hoops-web-viewer@2021.0.0/hoops_web_viewer.js"></script>
+    <script type="text/javascript">
+    var host = location.hostname === 'localhost'? 'localhost:3000' : location.hostname;
+    window.onload = function () {
+      viewer = new Communicator.WebViewer({
+        endpointUri: 'ws://' + host,
+        model: "microengine",
+        containerId: "content"
+      });
+      viewer.start();
+    }        
+    </script>
+</head>
+<body>
+  <div id="content"></div>
+</body>
+</html>
