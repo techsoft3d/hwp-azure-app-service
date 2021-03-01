@@ -19,7 +19,7 @@ In the Azure online Portal:
 - Create App Service using:
   - Code
   - Node 12 LTS - Or your preferred version of Node
-  - ndows or Linux - The github repo below runs a windows executable, you’ll need to edit it for linux
+  - Windows or Linux - The github repo below runs a windows executable, you’ll need to edit it for linux
   - Standard S1 - This is important because it supports 64bit, necessary to data streaming
 - Go to App Service | Configuration | General settings
   - Enable 64bit & WebSockets
